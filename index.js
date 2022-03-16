@@ -1,5 +1,5 @@
-function createEmployeeRecord(array) {
-  let record = {
+function createEmployeeRecord(array){
+  return {
     firstName: array[0],
     familyName: array[1],
     title: array[2],
@@ -7,59 +7,58 @@ function createEmployeeRecord(array) {
     timeInEvents: [],
     timeOutEvents: [],
   };
-  return record;
 }
 
-function createEmployeeRecords(array) {
+function createEmployeeRecords(array){
   return array.map((e) => createEmployeeRecord(e));
 }
 
-const createTimeInEvent = function (dates) {
-  let [date, hour] = dates.split(" ");
+function createTimeInEvent(array, dateStamp) {
+  let [dates, hours] = dateStamp.split(" ");
   let inTime = {
     type: "TimeIn",
+    hour: parseInt(hours),
+    date: dates
+  }
+  
+  array.timeInEvents.push(inTime)
+  return array
+}
+
+function createTimeOutEvent(array, dates){
+  let [date, hour] = dates.split(" ");
+  let outTime = {
+    type: "TimeOut",
     hour: parseInt(hour),
     date: date
   }
-  this.push(inTime)
-  console.log(this)
-  return this
+  array.timeOutEvents.push(outTime)
+  return array
 }
 
-// function createTimeOutEvent(array, dates){
-//   let [date, hour] = dates.split(" ");
-//   let outTime = {
-//     type: "TimeOut",
-//     hour: parseInt(hour),
-//     date: date
-//   }
-//   array.timeOutEvents.push(outTime)
-//   return array
-// }
+function hoursWorkedOnDate(obj, date){
+  const inTime = obj.timeInEvents.find(inTime => inTime.date === date)
+  const outTime = obj.timeOutEvents.find(oTime => oTime.date === date)
+  return (outTime.hour - inTime.hour) / 100
+}
 
-// function hoursWorkedOnDate(obj, date){
-//   const inTime = obj.timeInEvents.find(inTime => inTime.date === date)
-//   const outTime = obj.timeOutEvents.find(oTime => oTime.date === date)
-//   return (outTime.hour - inTime.hour) / 100
-// }
+function wagesEarnedOnDate(obj, date){
+  return hoursWorkedOnDate(obj, date) * (obj.payPerHour)
+}
 
-// function wagesEarnedOnDate(obj, date){
-//   return hoursWorkedOnDate(obj, date) * (obj.payPerHour)
-// }
+function allWagesFor (obj){
+  let workedDays = obj.timeInEvents.map(function (e){
+    return e.date
+  })
 
-// function allWagesFor (obj){
-//   let workedDays = obj.timeInEvents.map(function (e){
-//     return e.date
-//   })
+  let payable = workedDays.reduce(function (memo, d){
+    return memo + wagesEarnedOnDate(obj, d)
+  }, 0)
+  return payable
+}
 
-//   let payable = workedDays.reduce(function (memo, d){
-//     return memo + wagesEarnedOnDate(obj, d)
-//   }, 0)
-//   return payable
-// }
-
-// function calculatePayroll(array){
-//   return array.reduce((total, rec) => {
-//     return total + allWagesFor(rec)
-//   }, 0)
-// }
+function calculatePayroll(array){
+  return array.reduce((total, rec) => {
+    return total + allWagesFor(rec)
+  }, 0)
+}
